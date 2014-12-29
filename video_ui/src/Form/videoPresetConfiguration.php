@@ -8,8 +8,10 @@
 namespace Drupal\video_ui\Form;
 
 use Drupal\video\Preset;
+use Drupal\Core\Url;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Component\Utility\String;
 
 class videoPresetConfiguration extends ConfigFormBase {
   /**
@@ -42,24 +44,25 @@ class videoPresetConfiguration extends ConfigFormBase {
       );
 
       foreach ($presets as $preset) {
+        // dsm($preset);  
         $delete = NULL;
         if (empty($preset['module']) && !in_array($preset['name'], $selected)) {
-          $delete = array('#type' => 'link', '#title' => t('delete'), '#href' => 'admin/config/media/video/presets/preset/' . $preset['name'] . '/delete');
+          $delete = array('#type' => 'link', '#title' => \Drupal::l(t('delete'), Url::fromRoute('video_ui.preset_setting') . '/preset/' . $preset['name'] . '/delete'));
         }
         elseif ($preset['overridden']) {
-          $delete = array('#type' => 'link', '#title' => t('revert'), '#href' => 'admin/config/media/video/presets/preset/' . $preset['name'] . '/revert');
+          $delete = array('#type' => 'link', '#title' => \Drupal::l(t('revert'), Url::fromRoute('video_ui.preset_setting') . '/preset/' . $preset['name'] . '/revert'));
         }
 
         $form['video_preset'][$preset['name']] = array(
           'status' => array(
             '#type' => 'checkbox',
-            '#title' => check_plain($preset['name']),
+            '#title' => String::checkPlain($preset['name']),
             '#default_value' => in_array($preset['name'], $selected),
           ),
-          'description' => array('#markup' => !empty($preset['description']) ? check_plain($preset['description']) : ''),
-          'edit' => array('#type' => 'link', '#title' => t('edit'), '#href' => 'admin/config/media/video/presets/preset/' . $preset['name']),
+          'description' => array('#markup' => !empty($preset['description']) ? String::checkPlain($preset['description']) : ''),
+          'edit' => array('#type' => 'link', '#title' => \Drupal::l(t('edit'), Url::fromRoute('video_ui.preset_setting') . '/preset/' . $preset['name'])),
           'delete' => $delete,
-          'export' => array('#type' => 'link', '#title' => t('export'), '#href' => 'admin/config/media/video/presets/preset/' . $preset['name'] . '/export'),
+          'export' => array('#type' => 'link', '#title' => \Drupal::l(t('export'), Url::fromRoute('video_ui.preset_setting') . '/preset/' . $preset['name'] . '/export')),
         );
       }
     }
@@ -70,17 +73,22 @@ class videoPresetConfiguration extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-  // //   $userInputValues = $form_state->getUserInput();
-  // //   $node_types = NodeType::loadMultiple();
 
-  // //   $config = $this->config('social_stats.settings');
+    $config = \Drupal::config('video_ui.settings');
+    $userInputValues = $form_state->getUserInput();
+    $userInputValues['video_use_preset_wxh'] = (bool)$userInputValues['video_use_preset_wxh'];
 
-  // //   // Add new index to the config variable per content type.
-  // //   foreach ($node_types as $type) {
-  // //     $config->set('social_stats_content_types_' . $type->type, serialize($userInputValues['social_stats_' . $type->type]));
-  // //   }
+    $selected = array();
 
-  // //   $config->save();
-  // //   parent::submitForm($form, $form_state);
+    if (isset($form['video_preset'])) {
+      foreach ($userInputValues['video_preset'] as $name => $values) {
+        if ($values['status'] == 1) {
+          $selected[] = $name;
+        }
+      }
+    }
+
+    // Issue
+    $userInputValues['video_preset'] = $selected;
   }
 }

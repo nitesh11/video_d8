@@ -31,7 +31,7 @@ video_ui.schedule_setting:
 video_ui.preset_add:
   path: '/admin/config/media/video/presets/add'
   defaults:
-    _form: '\Drupal\video_ui\Form\videoPresetAdd'
+    _form: '\Drupal\video_ui\Form\videoPresetForm'
   requirements:
     _permission: 'administer video presets'
 video_ui.preset_import:
@@ -46,3 +46,27 @@ video_ui.ffmpeg_debugging:
     _form: '\Drupal\video_ui\Form\ffmpegDebugging'
   requirements:
     _permission: 'administer site configuration'
+video_ui.video_preset_edit:
+  path: '/admin/config/media/video/presets/preset/{video_preset}'
+  defaults:
+    _form: '\Drupal\video_ui\Form\videoPresetForm'
+  requirements:
+    _permission: 'administer video presets'
+video_ui.video_preset_delete:
+  path: '/admin/config/media/video/presets/preset/{video_preset}/delete'
+  defaults:
+    _form: '\Drupal\video_ui\Form\videoPresetDelete'
+  requirements:
+    _permission: 'administer video presets'
+video_ui.video_preset_revert:
+  path: '/admin/config/media/video/presets/preset/{video_preset_database}/revert'
+  defaults:
+    _form: '\Drupal\video_ui\Form\ffmpegDebugging'
+  requirements:
+    _permission: 'administer video presets'
+video_ui.video_preset_export:
+  path: '/admin/config/media/video/presets/preset/{video_preset_overridden}/export'
+  defaults:
+    _form: '\Drupal\video_ui\Form\ffmpegDebugging'
+  requirements:
+    _permission: 'administer video presets'

@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\video;
+
 /**
  * @file
  * Transcoder Abstract Factory classes

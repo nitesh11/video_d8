@@ -10,19 +10,35 @@
  * Saves a new preset.
  */
 function video_preset_save($preset) {
-  // If they provide the pid, then this needs to be an update.
-  $pid = (isset($preset['pid']) && $preset['pid']) ? array('pid') : array();
-  $object = (object)$preset;
-  dsm($object);
-  
-  // Save or update a preset.
-  // drupal_write_record('', $object, $pid);
-  // \Drupal::database()->merge('video_preset')
-  // ->key(array('type' => $type, 'id' => $id))
-  // ->fields(array('count' => $count))
-  // ->execute();
 
-  $preset['pid'] = $object->pid;
+  // If they provide the pid, then this needs to be an update.
+  dsm($preset);
+  $name = $preset['name'];
+  $description = $preset['description'];
+  $settings = $preset['settings'];
+  $serialized_settings = serialize($settings);
+
+  $max_pid_count = db_query("Select max(pid) as pid From video_preset")->fetchObject();
+  $count = $max_pid_count->pid + 1;
+
+  if (isset($preset['pid']) && $preset['pid']) {
+    $pid = $preset['pid'];
+  }
+  else {
+    $pid = $count;
+    $preset['pid'] = $pid;
+  }
+  
+  // // Save or update a preset.
+  \Drupal::database()->merge('video_preset')
+    ->key(array('pid' => $pid))
+    ->fields(array(
+      'pid' => $pid,
+      'name' => $name,
+      'description' => $description,
+      'settings' => $serialized_settings,
+    ))
+    ->execute();
 
   return $preset;
 }

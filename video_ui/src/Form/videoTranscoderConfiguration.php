@@ -24,9 +24,9 @@ class videoTranscoderConfiguration extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     
-    // $transcoder = new Transcoder();
-    $options = Transcoder::getAllTranscoders();
-
+    $transcoder = new Transcoder();
+    $options = $transcoder->getAllTranscoders();
+    dsm($options);
     $form = array();
     $form['video_convertor'] = array(
       '#type' => 'radios',
@@ -35,7 +35,8 @@ class videoTranscoderConfiguration extends ConfigFormBase {
       '#options' => $options['radios'],
       '#description' => '<p>' . t('Select a video transcoder will help you convert videos and generate thumbnails.') . '</p>' /*. theme('item_list', array('items' => $options['help']))*/,
     );
-    // $form = $form + $options['admin_settings'];
+    $form = $form + $options['admin_settings'];
+    dsm($form);
     return parent::buildForm($form, $form_state);
   }
 

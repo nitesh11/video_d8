@@ -5,7 +5,7 @@ namespace Drupal\video;
 use Drupal\video\Videoutility;
 use Drupal\video\PHPVideoToolkit;
 use Drupal\video\TranscoderAbstractionFactory;
-use Drupal\views_ui\ViewUI;
+use Drupal\Core\Url;
 
 /**;
 /**
@@ -502,7 +502,7 @@ class TranscoderAbstractionFactoryFfmpeg extends TranscoderAbstractionFactory im
     $form['ffmpeg']['video_ffmpeg_path'] = array(
       '#type' => 'textfield',
       '#title' => t('Path to FFmpeg or avconv executable'),
-      '#description' => t('Absolute path to the FFmpeg or avconv executable.') . ' ' . t('When you install a new FFmpeg version, please <a href="@performance-page">clear the caches</a> to let Drupal detect the updated codec support.', array('@performance-page' => url('admin/config/development/performance'))),
+      '#description' => t('Absolute path to the FFmpeg or avconv executable.') . ' ' . t('When you install a new FFmpeg version, please <a href="@performance-page">clear the caches</a> to let Drupal detect the updated codec support.', array('@performance-page' => Url::fromRoute('system.performance_settings'))),
       '#default_value' => $config->get('video_ffmpeg_path') ?: '/usr/bin/ffmpeg',
     );
 
@@ -550,7 +550,7 @@ class TranscoderAbstractionFactoryFfmpeg extends TranscoderAbstractionFactory im
     if (!empty($v['video_ffmpeg_path'])) {
       $errorhelp = '';
       if (\Drupal::moduleHandler()->moduleExists('video_ui')) {
-        $errorhelp = '<br/>' . t('Visit the <a href="@ffmpeg-debug-page">FFmpeg debug page</a> for information thay may help you find the cause of this problem.', array('@ffmpeg-debug-page' => url('admin/config/media/video/ffmpeg-info', array('query' => array('ffmpegpath' => $v['video_ffmpeg_path'])))));
+        $errorhelp = '<br/>' . t('Visit the <a href="@ffmpeg-debug-page">FFmpeg debug page</a> for information thay may help you find the cause of this problem.', array('@ffmpeg-debug-page' => Url::fromRoute('video_ui.ffmpeg_debugging', array('query' => array('ffmpegpath' => $v['video_ffmpeg_path'])))));
       }
 
       $toolkit = new PHPVideoToolkit($v['video_ffmpeg_path']);

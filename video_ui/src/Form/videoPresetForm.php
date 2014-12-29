@@ -16,7 +16,7 @@ use Drupal\Core\Url;
 use \Drupal\file\Entity\File;
 
 define('VIDEO_PRESET_MAX_LENGTH', 64);
-class videoPresetAdd extends ConfigFormBase {
+class videoPresetForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
@@ -591,51 +591,46 @@ class videoPresetAdd extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $userInputValues = $form_state->getUserInput();
-  
-    $v =& $userInputValues;
-    $complete_form = $form_state->getCompleteForm();
 
-	  $old = isset($complete_form['preset']) ? $complete_form['preset'] : NULL;
+  	$userInputValues = $form_state->getUserInput();
+  	$v =& $userInputValues;
 
-	  $preset = array();
-	  if ($old && isset($old['pid'])) {
-	    $preset['pid'] = $old['pid'];
-	  }
+		$old = isset($userInputValues['preset']) ? $userInputValues['preset'] : NULL;
 
-	  // There is only a name if this isn't a module provided preset
-	  $preset['name'] = isset($v['name']) ? $v['name'] : $old['name'];
-	  $preset['description'] = $v['description'];
-	  // unset unwanted values saved to database
-	  unset($v['name'], $v['description'], $v['submit'], $v['delete'], $v['form_build_id'], $v['form_token'], $v['form_id'], $v['op'], $v['revert']);
-	  $preset['settings'] = video_preset_array_flatten($v);
+		$preset = array();
+		if ($old && isset($old['pid'])) {
+		  $preset['pid'] = $old['pid'];
+		}
 
-	  // Save this preset.
-	  $preset = video_preset_save($preset);
+		// There is only a name if this isn't a module provided preset
+		$preset['name'] = isset($v['name']) ? $v['name'] : $old['name'];
+		$preset['description'] = $v['description'];
+		// unset unwanted values saved to database
+		unset($v['name'], $v['description'], $v['submit'], $v['delete'], $v['form_build_id'], $v['form_token'], $v['form_id'], $v['op'], $v['revert']);
+		$preset['settings'] = video_preset_array_flatten($v);
 
-	  // Save new watermark image if exists
-	  if (!empty($v['video_watermark_fid'])) {
-	    $file = File::load($v['video_watermark_fid']);
-	    if ($file->status != FILE_STATUS_PERMANENT) {
-	      $file->status = FILE_STATUS_PERMANENT;
-	      // file_save($file);
-	      file_usage()->add($file, 'video', 'preset', $preset['pid']);
-	      // file_usage_add($file, 'video', 'preset', $preset['pid']);
-	    }
-	  }
+		// Save this preset.
+		$preset = video_preset_save($preset);
 
-	  // Remove the old watermark if different
-	  if ($old && !empty($old['settings']['video_watermark_fid']) && $old['settings']['video_watermark_fid'] != $form_state['values']['video_watermark_fid']) {
-	    $oldfile = File::load($old['settings']['video_watermark_fid']);
-	    if (!empty($oldfile)) {
-	    	$oldfile->status = 0;
-	    	file_usage()->delete($oldfile, 'video', 'preset', $preset['pid']);
-	      // file_usage_delete($oldfile, 'video');
-	      // file_save($oldfile);
-	    }
-	  }
+		// Save new watermark image if exists
+		// if (!empty($v['video_watermark_fid'])) {
+		//   $file = file_load($v['video_watermark_fid']);
+		//   if ($file->status != FILE_STATUS_PERMANENT) {
+		//     $file->status = FILE_STATUS_PERMANENT;
+		//     \Drupal::service('file.usage')->add($file, 'video', 'preset', $preset['pid']);
+		//   }
+		// }
 
-	  drupal_set_message(t('Preset %preset successfully saved.', array('%preset' => $preset['name'])));
-	  $form_state->setRedirect('video_ui.preset_setting');
+		// // Remove the old watermark if different
+		// if ($old && !empty($old['settings']['video_watermark_fid']) && $old['settings']['video_watermark_fid'] != $form_state['values']['video_watermark_fid']) {
+		//   $oldfile = file_load($old['settings']['video_watermark_fid']);
+		//   if (!empty($oldfile)) {
+		//     \Drupal::service('file.usage')->delete($oldfile, 'video');
+		//     $oldfile->status = 0;
+		//   }
+		// }
+
+		drupal_set_message(t('Preset %preset successfully saved.', array('%preset' => $preset['name'])));
+		$form_state->setRedirect('video_ui.preset_setting');
   }
 }

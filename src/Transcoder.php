@@ -3,6 +3,8 @@
 namespace Drupal\video;
 
 use Drupal\video\TranscoderAbstractionFactoryFfmpeg;
+use Drupal\Component\Utility\String;
+
 /**
  * @file
  * Class file used to wrap the transcoder helper functions.
@@ -275,31 +277,36 @@ class Transcoder {
       'help' => array(),
       'admin_settings' => array(),
     );
+    $focus = new TranscoderAbstractionFactoryFfmpeg();
+    $form['radios'][$file->name] = String::checkPlain($focus->getName());
+    $form['admin_settings'] = $form['admin_settings'] + $focus->adminSettings();
     // check inside sub modules
-    $modules = \Drupal::moduleHandler()->getModuleList();
-    $files = array();
-    foreach ($modules as $module) {
-      $module_files = array();
-      $module_path = drupal_get_path('module', $module) . '/transcoders';
-      foreach (file_scan_directory($module_path, '/.*\.inc/') as $filekey => $file) {
-        $file->module = $module;
-        $module_files[] = $file;
-      }
-      $files = array_merge($files, $module_files);
-    }
-    foreach ($files as $file) {
-      module_load_include('inc', $file->module, '/transcoders/' . $file->name);
-      $focus = new $file->name;
+    // $modules = \Drupal::moduleHandler()->getModuleList();
+    // $files = array();
+    // foreach ($modules as $module => $module_object) {
+    //   $module_files = array();
+    //   $module_path = drupal_get_path('module', $module) . '/transcoders';
+    //   dsm($module_path);
+    //   foreach (file_scan_directory($module_path, '/.*\.inc/') as $filekey => $file) {
+    //     $file->module = $module;
+    //     $module_files[] = $file;
+    //   }
+    //   $files = array_merge($files, $module_files);
+    // }
+    // dsm($files);
+    // foreach ($files as $file) {
+    //   module_load_include('inc', $file->module, '/src/transcoders/' . $file->name);
+    //   $focus = new $file->name;
 
-      $errorMessage = '';
-      if (!$focus->isAvailable($errorMessage)) {
-        $form['help'][] = t('@name is unavailable: !errormessage', array('@name' => $focus->getName(), '!errormessage' => $errorMessage));
-      }
-      else {
-        $form['radios'][$file->name] = check_plain($focus->getName());
-        $form['admin_settings'] = $form['admin_settings'] + $focus->adminSettings();
-      }
-    }
+    //   $errorMessage = '';
+    //   if (!$focus->isAvailable($errorMessage)) {
+    //     $form['help'][] = t('@name is unavailable: !errormessage', array('@name' => $focus->getName(), '!errormessage' => $errorMessage));
+    //   }
+    //   else {
+    //     $form['radios'][$file->name] = check_plain($focus->getName());
+    //     $form['admin_settings'] = $form['admin_settings'] + $focus->adminSettings();
+    //   }
+    // }
     return $form;
   }
 
